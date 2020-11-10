@@ -2,19 +2,27 @@ import './styles.css';
 import ImagesTpl from './templates/images.hbs';
 import './js/apiService';
 import ImagesApiService from './js/apiService';
+import LoadMoreBtn from './js/components/load-more-btn';
 
 const debounce = require('lodash.debounce');
 
 const refs = {
     cardContainer: document.querySelector('.gallery'),
     searchInput: document.querySelector("input[name='query']"),
-    loadMoreBtn: document.querySelector('[data-action="load-more"')
+    // loadMoreBtn: document.querySelector('[data-action="load-more"]')
 };
 
+const loadMoreBtn = new LoadMoreBtn({
+    selector: '[data-action="load-more"]',
+    hidden: true,
+});
 const imagesApiService = new ImagesApiService();
 
+console.log(loadMoreBtn);
+
+
 refs.searchInput.addEventListener('input', debounce(onSearch, 500));
-refs.loadMoreBtn.addEventListener('click', onLoadMore);
+loadMoreBtn.refs.button.addEventListener('click', fetchImages);
 
 function onSearch(e) {
     e.preventDefault();
@@ -22,15 +30,19 @@ function onSearch(e) {
     
     // const searchQuery = e.currentTarget.elements.query.value;
     imagesApiService.query = refs.searchInput.value;
+
+    loadMoreBtn.show();
     imagesApiService.resetPage();
-    imagesApiService.fetchArticles().then(images => {
-        clearImagesContainer();
-        appendImagesMarkup(images);
-    });
+    clearImagesContainer();
+    fetchImages();
 }
 
-function onLoadMore() {
-    imagesApiService.fetchArticles().then(appendImagesMarkup);
+function fetchImages() {
+    loadMoreBtn.disable();
+    imagesApiService.fetchArticles().then(images => {
+        appendImagesMarkup(images);
+        loadMoreBtn.enable();
+    }); 
 }
 
 function appendImagesMarkup(images) {
