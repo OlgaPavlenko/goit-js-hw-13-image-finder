@@ -7,49 +7,49 @@ import LoadMoreBtn from './js/components/load-more-btn';
 const debounce = require('lodash.debounce');
 
 const refs = {
-    cardContainer: document.querySelector('.gallery'),
-    searchInput: document.querySelector("input[name='query']"),
-    // loadMoreBtn: document.querySelector('[data-action="load-more"]')
+  cardContainer: document.querySelector('.gallery'),
+  searchInput: document.querySelector("input[name='query']"),
 };
 
 const loadMoreBtn = new LoadMoreBtn({
-    selector: '[data-action="load-more"]',
-    hidden: true,
+  selector: '[data-action="load-more"]',
+  hidden: true,
 });
+
 const imagesApiService = new ImagesApiService();
-
-console.log(loadMoreBtn);
-
 
 refs.searchInput.addEventListener('input', debounce(onSearch, 500));
 loadMoreBtn.refs.button.addEventListener('click', fetchImages);
 
 function onSearch(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    
-    // const searchQuery = e.currentTarget.elements.query.value;
-    imagesApiService.query = refs.searchInput.value;
-
-    loadMoreBtn.show();
-    imagesApiService.resetPage();
-    clearImagesContainer();
-    fetchImages();
+  imagesApiService.query = refs.searchInput.value;
+  loadMoreBtn.show();
+  imagesApiService.resetPage();
+  clearImagesContainer();
+  fetchImages();
 }
 
 function fetchImages() {
-    loadMoreBtn.disable();
-    imagesApiService.fetchArticles().then(images => {
-        appendImagesMarkup(images);
-        loadMoreBtn.enable();
-    }); 
+  loadMoreBtn.disable();
+  imagesApiService.fetchArticles().then(images => {
+    appendImagesMarkup(images);
+
+    if (images.length < 12) {
+      loadMoreBtn.hide();
+    } else {
+      loadMoreBtn.show();
+    }
+
+    loadMoreBtn.enable();
+  });
 }
 
 function appendImagesMarkup(images) {
-    refs.cardContainer.insertAdjacentHTML('beforeend', ImagesTpl(images));
+  refs.cardContainer.insertAdjacentHTML('beforeend', ImagesTpl(images));
 }
 
 function clearImagesContainer() {
-    refs.cardContainer.innerHTML = '';
+  refs.cardContainer.innerHTML = '';
 }
-

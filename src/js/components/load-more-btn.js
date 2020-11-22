@@ -27,10 +27,12 @@ export default class LoadMoreBtn {
   }
 
   show() {
+    this.refs.button.disabled = false;
     this.refs.button.classList.remove('is-hidden');
   }
 
   hide() {
+    this.refs.button.disabled = true;
     this.refs.button.classList.add('is-hidden');
   }
 }
